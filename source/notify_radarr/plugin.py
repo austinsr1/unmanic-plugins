@@ -252,15 +252,21 @@ def process_files(settings, source_file, destination_files, host_url, api_key):
 
     # Get the basename of the file
     for dest_file in destination_files:
+        # Skip hidden files or specific files like .unmanic
+        if os.path.basename(dest_file).startswith('.'):
+            logger.info("Ignoring hidden file: '%s'", dest_file)
+            continue
+
         if mode == 'update_mode':
             update_mode(api, dest_file, rename_files)
         elif mode == 'import_mode':
             minimum_file_size = settings.get_setting('minimum_file_size')
             if check_file_size_under_max_file_size(dest_file, minimum_file_size):
                 # Ignore this file
-                logger.info("Ignoring file as it is under configured minimum size file: '%s'", dest_file)
+                logger.info("Ignoring file as it is under configured minimum size: '%s'", dest_file)
                 continue
             import_mode(api, source_file, dest_file)
+
 
 
 def on_postprocessor_task_results(data):
